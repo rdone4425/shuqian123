@@ -1,1 +1,915 @@
-1122
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书签导航系统流程图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .legend {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .legend h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 12px;
+        }
+
+        .legend-text {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .flowchart {
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .flow-container {
+            min-width: 800px;
+            position: relative;
+        }
+
+        .flow-box {
+            display: inline-block;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            text-align: center;
+            margin: 10px;
+            min-width: 180px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .flow-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .flow-box.small {
+            min-width: 120px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
+
+        /* 颜色定义 */
+        .blue { background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); }
+        .red { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); }
+        .yellow { background: linear-gradient(135deg, #f6ad55 0%, #dd6b20 100%); }
+        .green { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        .purple { background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%); }
+        .orange { background: linear-gradient(135deg, #ed8936 0%, #c05621 100%); }
+
+        .arrow {
+            color: #4a5568;
+            font-size: 18px;
+            margin: 5px 0;
+            text-align: center;
+        }
+
+        .decision {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 20px;
+        }
+
+        .branch-label {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin: 5px 0;
+        }
+
+        .description {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .description h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .desc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .desc-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .desc-item h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .desc-item ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .desc-item li {
+            padding: 5px 0;
+            color: #4a5568;
+        }
+
+        .desc-item li::before {
+            content: '→ ';
+            color: #4299e1;
+            font-weight: bold;
+        }
+
+        /* 进度指示器样式 */
+        .progress-container {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .progress-step.completed .step-circle {
+            background: #48bb78;
+            color: white;
+        }
+
+        .progress-step.current .step-circle {
+            background: #4299e1;
+            color: white;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        .progress-step.completed .step-label,
+        .progress-step.current .step-label {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* 流程框交互样式 */
+        .flow-box.clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flow-box.clickable:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .flow-box.current {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-indicator.success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .status-indicator.error {
+            background: #f56565;
+            color: white;
+        }
+
+        .status-indicator.warning {
+            background: #f6ad55;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .flowchart {
+                padding: 20px;
+            }
+
+            .flow-box {
+                min-width: 150px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 书签导航系统流程图</h1>
+            <p>完整的用户访问和系统处理流程</p>
+            <div style="margin-top: 20px;">
+                <button id="checkStatusBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    🔍 检测当前状态
+                </button>
+                <button id="resetViewBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                    🔄 重置视图
+                </button>
+            </div>
+        </div>
+
+        <!-- 进度指示器 -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-step" data-step="database">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">数据库绑定</div>
+                </div>
+                <div class="progress-step" data-step="install">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">系统安装</div>
+                </div>
+                <div class="progress-step" data-step="login">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">登录设置</div>
+                </div>
+                <div class="progress-step" data-step="dashboard">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">开始使用</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h2>🎨 颜色标识说明</h2>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color blue"></div>
+                    <div class="legend-text">入口和检测流程</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color red"></div>
+                    <div class="legend-text">错误和配置页面</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color yellow"></div>
+                    <div class="legend-text">安装和初始化</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color green"></div>
+                    <div class="legend-text">认证和登录</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color purple"></div>
+                    <div class="legend-text">主要功能页面</div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color orange"></div>
+                    <div class="legend-text">管理和后台</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flowchart">
+            <div class="flow-container">
+                <!-- 入口 -->
+                <div class="flow-row">
+                    <div class="flow-box blue clickable" data-page="/" data-step="entry">
+                        🌐 用户访问网站
+                        <div class="status-indicator" id="status-entry" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <!-- 数据库检测 -->
+                <div class="flow-row">
+                    <div class="flow-box blue clickable" data-page="/test-api.html" data-step="database-check">
+                        🔍 检测 D1 数据库绑定状态
+                        <div class="status-indicator" id="status-database-check" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <!-- 数据库绑定判断 -->
+                <div class="flow-row">
+                    <div class="decision">是否已绑定数据库？</div>
+                </div>
+
+                <!-- 分支：数据库绑定 -->
+                <div class="flow-row">
+                    <div class="flow-branch">
+                        <div class="branch-label">否</div>
+                        <div class="flow-box red clickable" data-page="/database-setup.html" data-step="database-setup">
+                            ⚠️ 数据库绑定提示页<br><small>显示绑定教程和案例</small>
+                            <div class="status-indicator" id="status-database-setup" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="flow-branch">
+                        <div class="branch-label">是</div>
+                        <div class="flow-box blue clickable" data-page="/test-api.html" data-step="install-check">
+                            🔍 检测系统安装状态
+                            <div class="status-indicator" id="status-install-check" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <!-- 安装状态判断 -->
+                <div class="flow-row">
+                    <div style="width: 200px;"></div>
+                    <div class="decision">是否已安装？</div>
+                </div>
+
+                <!-- 分支：系统安装 -->
+                <div class="flow-row">
+                    <div class="flow-branch">
+                        <div class="branch-label">否</div>
+                        <div class="flow-box yellow clickable" data-page="/setup.html" data-step="system-install">
+                            ⚙️ 系统安装页面<br><small>创建表格 + 设置账号</small>
+                            <div class="status-indicator" id="status-system-install" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="flow-branch">
+                        <div class="branch-label">是</div>
+                        <div class="flow-box blue clickable" data-page="/test-api.html" data-step="login-check">
+                            🔍 检测登录状态
+                            <div class="status-indicator" id="status-login-check" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <!-- 登录状态判断 -->
+                <div class="flow-row">
+                    <div class="flow-box green clickable" data-page="/login.html" data-step="login-page">
+                        🔑 登录页面<br><small>输入账号密码</small>
+                        <div class="status-indicator" id="status-login-page" style="display: none;"></div>
+                    </div>
+                    <div class="decision">是否已登录？</div>
+                </div>
+
+                <!-- 分支：登录 -->
+                <div class="flow-row">
+                    <div class="flow-branch">
+                        <div class="branch-label">否</div>
+                        <div class="flow-box green clickable" data-page="/login.html" data-step="login-required">
+                            🔑 登录页面<br><small>输入账号密码</small>
+                            <div class="status-indicator" id="status-login-required" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="flow-branch">
+                        <div class="branch-label">是</div>
+                        <div class="flow-box purple clickable" data-page="/dashboard.html" data-step="dashboard-preview">
+                            📚 首页（书签展示）<br><small>展示书签列表</small>
+                            <div class="status-indicator" id="status-dashboard-preview" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓</div>
+
+                <!-- 主功能页面 -->
+                <div class="flow-row">
+                    <div class="flow-box purple clickable" data-page="/dashboard.html" data-step="dashboard-main">
+                        📚 首页（书签展示页）<br><small>仅登录后可访问<br>展示书签列表<br>点击访问外部链接<br>🔍 搜索和筛选功能</small>
+                        <div class="status-indicator" id="status-dashboard-main" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="arrow">↓ 点击"管理"</div>
+
+                <!-- 管理页面 -->
+                <div class="flow-row">
+                    <div class="flow-box orange clickable" data-page="/admin.html" data-step="admin-panel">
+                        ⚙️ 后台管理页面<br><small>添加/编辑/删除书签<br>修改标题、链接等信息<br>📊 使用统计分析<br>📥 导入导出功能</small>
+                        <div class="status-indicator" id="status-admin-panel" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="description">
+            <h2>📋 各板块功能详解</h2>
+            <div class="desc-grid">
+                <div class="desc-item" style="border-left-color: #4299e1;">
+                    <h3>🔵 检测流程板块</h3>
+                    <ul>
+                        <li>用户访问网站 - 系统入口</li>
+                        <li>检测 D1 数据库绑定状态</li>
+                        <li>检测系统安装状态</li>
+                        <li>检测登录状态</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #f56565;">
+                    <h3>🔴 错误处理板块</h3>
+                    <ul>
+                        <li>数据库绑定提示页</li>
+                        <li>显示详细绑定教程</li>
+                        <li>提供实际配置案例</li>
+                        <li>重新检测功能</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #f6ad55;">
+                    <h3>🟡 安装初始化板块</h3>
+                    <ul>
+                        <li>系统安装页面</li>
+                        <li>自动创建数据库表格</li>
+                        <li>设置管理员账号</li>
+                        <li>初始化系统配置</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #48bb78;">
+                    <h3>🟢 认证登录板块</h3>
+                    <ul>
+                        <li>用户身份验证</li>
+                        <li>账号密码认证</li>
+                        <li>JWT Token 生成</li>
+                        <li>登录状态保持</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #9f7aea;">
+                    <h3>🟣 主要功能板块</h3>
+                    <ul>
+                        <li>书签展示首页（类似 hao123）</li>
+                        <li>分类浏览书签</li>
+                        <li>点击访问外部链接</li>
+                        <li>🔍 搜索和筛选功能</li>
+                        <li>📱 响应式设计</li>
+                        <li>🌙 深色模式支持</li>
+                        <li>⚡ 快速添加书签</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #ed8936;">
+                    <h3>🟠 管理后台板块</h3>
+                    <ul>
+                        <li>添加/编辑/删除书签</li>
+                        <li>管理书签分类</li>
+                        <li>📊 使用统计分析</li>
+                        <li>📥 Chrome 书签导入</li>
+                        <li>📤 数据备份导出</li>
+                        <li>👥 用户管理（多用户）</li>
+                        <li>⚙️ 系统设置</li>
+                        <li>🎨 主题定制</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #48bb78;">
+                    <h3>🔧 技术优化建议</h3>
+                    <ul>
+                        <li>💾 本地缓存策略</li>
+                        <li>🚀 性能优化（懒加载）</li>
+                        <li>🔒 安全增强（频率限制）</li>
+                        <li>📱 PWA 支持</li>
+                        <li>🌐 CDN 加速</li>
+                        <li>📈 SEO 优化</li>
+                        <li>🔄 离线访问支持</li>
+                    </ul>
+                </div>
+
+                <div class="desc-item" style="border-left-color: #f6ad55;">
+                    <h3>📊 数据分析功能</h3>
+                    <ul>
+                        <li>📈 书签点击统计</li>
+                        <li>⏰ 访问时间分析</li>
+                        <li>🔥 热门书签排行</li>
+                        <li>📅 使用习惯分析</li>
+                        <li>📊 可视化图表</li>
+                        <li>📋 数据报表导出</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 流程图交互功能
+        class FlowchartManager {
+            constructor() {
+                this.currentStatus = {
+                    database: false,
+                    install: false,
+                    login: false,
+                    dashboard: false
+                };
+                this.init();
+            }
+
+            init() {
+                // 绑定点击事件
+                this.bindClickEvents();
+
+                // 绑定按钮事件
+                document.getElementById('checkStatusBtn').addEventListener('click', () => {
+                    this.checkSystemStatus();
+                });
+
+                document.getElementById('resetViewBtn').addEventListener('click', () => {
+                    this.resetView();
+                });
+
+                // 页面加载时自动检测状态
+                this.checkSystemStatus();
+            }
+
+            // 绑定流程框点击事件
+            bindClickEvents() {
+                document.querySelectorAll('.flow-box.clickable').forEach(box => {
+                    box.addEventListener('click', () => {
+                        const page = box.getAttribute('data-page');
+                        if (page && page !== '#') {
+                            // 在新标签页打开
+                            window.open(page, '_blank');
+                        }
+                    });
+                });
+            }
+
+            // 检测系统状态
+            async checkSystemStatus() {
+                const btn = document.getElementById('checkStatusBtn');
+                btn.textContent = '🔄 检测中...';
+                btn.disabled = true;
+
+                try {
+                    // 检测数据库绑定
+                    await this.checkDatabase();
+
+                    // 检测系统安装
+                    if (this.currentStatus.database) {
+                        await this.checkInstallation();
+                    }
+
+                    // 检测登录状态
+                    if (this.currentStatus.install) {
+                        await this.checkLogin();
+                    }
+
+                    // 更新进度指示器
+                    this.updateProgressBar();
+
+                    // 高亮当前步骤
+                    this.highlightCurrentStep();
+
+                } catch (error) {
+                    console.error('状态检测失败:', error);
+                    this.showError('状态检测失败: ' + error.message);
+                } finally {
+                    btn.textContent = '🔍 检测当前状态';
+                    btn.disabled = false;
+                }
+            }
+
+            // 检测数据库绑定
+            async checkDatabase() {
+                try {
+                    const response = await fetch('/api/setup/check-database');
+                    const result = await response.json();
+
+                    this.currentStatus.database = result.success;
+                    this.updateStatus('database-check', result.success ? 'success' : 'error');
+
+                    if (!result.success) {
+                        this.updateStatus('database-setup', 'warning');
+                    }
+                } catch (error) {
+                    this.currentStatus.database = false;
+                    this.updateStatus('database-check', 'error');
+                    this.updateStatus('database-setup', 'warning');
+                }
+            }
+
+            // 检测系统安装
+            async checkInstallation() {
+                try {
+                    const response = await fetch('/api/auth/check-admin');
+                    const result = await response.json();
+
+                    this.currentStatus.install = result.success && result.data.hasAdmin;
+                    this.updateStatus('install-check', this.currentStatus.install ? 'success' : 'error');
+
+                    if (!this.currentStatus.install) {
+                        this.updateStatus('system-install', 'warning');
+                    }
+                } catch (error) {
+                    this.currentStatus.install = false;
+                    this.updateStatus('install-check', 'error');
+                    this.updateStatus('system-install', 'warning');
+                }
+            }
+
+            // 检测登录状态
+            async checkLogin() {
+                try {
+                    const token = localStorage.getItem('auth_token');
+                    if (!token) {
+                        this.currentStatus.login = false;
+                        this.updateStatus('login-check', 'error');
+                        this.updateStatus('login-page', 'warning');
+                        return;
+                    }
+
+                    const response = await fetch('/api/auth/verify', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    this.currentStatus.login = response.ok;
+                    this.updateStatus('login-check', this.currentStatus.login ? 'success' : 'error');
+
+                    if (this.currentStatus.login) {
+                        this.currentStatus.dashboard = true;
+                        this.updateStatus('dashboard-main', 'success');
+                        this.updateStatus('admin-panel', 'success');
+                    } else {
+                        this.updateStatus('login-page', 'warning');
+                    }
+                } catch (error) {
+                    this.currentStatus.login = false;
+                    this.updateStatus('login-check', 'error');
+                    this.updateStatus('login-page', 'warning');
+                }
+            }
+
+            // 更新状态指示器
+            updateStatus(stepId, status) {
+                const indicator = document.getElementById(`status-${stepId}`);
+                if (!indicator) return;
+
+                indicator.style.display = 'flex';
+                indicator.className = `status-indicator ${status}`;
+
+                switch (status) {
+                    case 'success':
+                        indicator.textContent = '✓';
+                        break;
+                    case 'error':
+                        indicator.textContent = '✗';
+                        break;
+                    case 'warning':
+                        indicator.textContent = '!';
+                        break;
+                }
+            }
+
+            // 更新进度条
+            updateProgressBar() {
+                const steps = document.querySelectorAll('.progress-step');
+
+                steps.forEach((step, index) => {
+                    step.classList.remove('completed', 'current');
+
+                    if (index === 0 && this.currentStatus.database) {
+                        step.classList.add('completed');
+                    } else if (index === 1 && this.currentStatus.install) {
+                        step.classList.add('completed');
+                    } else if (index === 2 && this.currentStatus.login) {
+                        step.classList.add('completed');
+                    } else if (index === 3 && this.currentStatus.dashboard) {
+                        step.classList.add('completed');
+                    } else if (
+                        (index === 0 && !this.currentStatus.database) ||
+                        (index === 1 && this.currentStatus.database && !this.currentStatus.install) ||
+                        (index === 2 && this.currentStatus.install && !this.currentStatus.login) ||
+                        (index === 3 && this.currentStatus.login && !this.currentStatus.dashboard)
+                    ) {
+                        step.classList.add('current');
+                    }
+                });
+            }
+
+            // 高亮当前步骤
+            highlightCurrentStep() {
+                // 清除所有高亮
+                document.querySelectorAll('.flow-box').forEach(box => {
+                    box.classList.remove('current');
+                });
+
+                // 根据状态高亮对应步骤
+                if (!this.currentStatus.database) {
+                    this.highlightStep('database-check');
+                    this.highlightStep('database-setup');
+                } else if (!this.currentStatus.install) {
+                    this.highlightStep('install-check');
+                    this.highlightStep('system-install');
+                } else if (!this.currentStatus.login) {
+                    this.highlightStep('login-check');
+                    this.highlightStep('login-page');
+                } else {
+                    this.highlightStep('dashboard-main');
+                }
+            }
+
+            // 高亮指定步骤
+            highlightStep(stepId) {
+                const element = document.querySelector(`[data-step="${stepId}"]`);
+                if (element) {
+                    element.classList.add('current');
+                }
+            }
+
+            // 重置视图
+            resetView() {
+                // 清除所有状态指示器
+                document.querySelectorAll('.status-indicator').forEach(indicator => {
+                    indicator.style.display = 'none';
+                });
+
+                // 清除所有高亮
+                document.querySelectorAll('.flow-box').forEach(box => {
+                    box.classList.remove('current');
+                });
+
+                // 重置进度条
+                document.querySelectorAll('.progress-step').forEach(step => {
+                    step.classList.remove('completed', 'current');
+                });
+
+                // 重置状态
+                this.currentStatus = {
+                    database: false,
+                    install: false,
+                    login: false,
+                    dashboard: false
+                };
+            }
+
+            // 显示错误信息
+            showError(message) {
+                alert(message);
+            }
+        }
+
+        // 初始化流程图管理器
+        document.addEventListener('DOMContentLoaded', () => {
+            new FlowchartManager();
+        });
+    </script>
+</body>
+</html>
